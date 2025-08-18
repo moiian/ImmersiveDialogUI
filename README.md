@@ -25,10 +25,10 @@ A enhanced conversation addon for World of Warcraft 1.12 (Vanilla/Turtle WoW) wi
 
 ## Screenshots
 
-![WoW 2025-08-18 19-13-38](https://github.com/user-attachments/assets/6c5cefa3-715d-4560-8b6b-6a873553b8c6)
-![WoW 2025-08-18 18-57-31](https://github.com/user-attachments/assets/3ad3846a-e2d3-4acf-b307-44f4f01268d3)
-![WoW 2025-08-18 18-57-16](https://github.com/user-attachments/assets/2e65af52-43b0-4abe-9efc-8cee28b28fa2)
-![WoW 2025-08-18 18-51-39](https://github.com/user-attachments/assets/e6d6f931-0e1d-4eb5-bb6c-3131335eba32)
+![WoW 2025-08-18 19-13-38](https://github.com/user-attachments/assets/b01959fd-e37a-4411-bca8-45611a9b82b7)
+![WoW 2025-08-18 18-57-31](https://github.com/user-attachments/assets/d1c6dbc7-f845-4edc-85b6-07803b8f575d)
+![WoW 2025-08-18 18-57-16](https://github.com/user-attachments/assets/a180147c-728a-445f-9b38-151c76b1ba79)
+![WoW 2025-08-18 18-51-39](https://github.com/user-attachments/assets/6ef89ef5-30e8-472b-9ccc-2a20ccb133a0)
 
 
 ## Installation
