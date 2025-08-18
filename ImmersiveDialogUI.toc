@@ -1,0 +1,31 @@
+## Interface: 11200
+## Title: ImmersiveDialogUI
+## Notes: for Vanilla 1.12
+## Author: moiianxiv
+## Version: 1.0
+## SavedVariables: ImmersiveUIDB
+
+ImmersiveDialogUI.lua
+
+# Fonts used for the frames
+src\assets\font\fonts.xml
+
+# Money frame
+src\frames\moneyFrame\money.frame.xml
+
+# UI panel textures
+src\frames\uiPanelTemplate\ui.panel.template.lua
+src\frames\uiPanelTemplate\ui.panel.template.xml
+src\frames\uiPanelTemplate\ui.panel.template.button.xml
+
+# Gossip frame
+src\frames\gossipFrame\gossip.frame.lua
+src\frames\gossipFrame\gossip.frame.xml
+
+# Quest frame
+src\frames\questFrame\quest.frame.lua
+src\frames\questFrame\quest.frame.template.xml
+src\frames\questFrame\quest.frame.xml
+
+# XPBar frame
+src\frames\XPBar\XPBar.lua
