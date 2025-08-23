@@ -11,7 +11,6 @@ A enhanced conversation addon for World of Warcraft 1.12 (Vanilla/Turtle WoW) wi
 
 ## Features
 - **Redesigned Layout**: Complete visual overhaul of conversation and gossip interfaces for enhanced immersion
-- **Typewriter Effect**: Sentence-by-sentence text animation for dialogue
 - **Customizable Controls**: Remappable hotkeys for continue/decline actions
 - **Flexible Positioning**: Fully adjustable UI placement and size via slider controls
 - **Controller Support**: Gamepad button icons (can be reverted to keyboard icons by replacing included TGA files)
@@ -50,7 +49,6 @@ To revert to keyboard icons:
 ## 功能特点
 
 - **全新布局设计**：对话与闲聊界面的视觉彻底革新，增强沉浸体验
-- **打字机效果**：对话文本采用逐句播放的动画展示
 - **可自定义控制**：继续/拒绝等操作支持快捷键重映射
 - **灵活定位调整**：通过滑块控制，UI位置与大小可完全自定义
 - **手柄支持**：默认显示手柄按键图标（如需恢复键盘图标，替换附带的TGA文件即可）
