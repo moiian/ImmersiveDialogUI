@@ -44,7 +44,8 @@ function ApplyDynamicLayout()
         RightColumnWidthPct = 0.25,
         AncillaryInitialYOffset = -10,
         AncillarySpacing = -10,
-        FontSize = 19
+        FontSize = 19,
+		WordMinLimit = 3
     }
     local db = ImmersiveUIDB or {}
 
@@ -61,7 +62,9 @@ function ApplyDynamicLayout()
         FontSize = db.FontSize or GOSSIP_DEFAULTS.FontSize,
         RightColumnWidthPct = (db.RightColumnWidthPct or 0.15) + 0.10,
         AncillaryInitialYOffset = (db.AncillaryInitialYOffset or -30) + 20,
-        AncillarySpacing = (db.AncillarySpacing or -20) + 10
+        AncillarySpacing = (db.AncillarySpacing or -20) + 10,
+		WordMinLimit = db.xOffsetOffset or GOSSIP_DEFAULTS.xOffsetOffset
+		
     };
 
     -- 字体配置也需要在这里动态生成，因为它依赖于FontSize
@@ -134,121 +137,175 @@ end
 -- =================================================================
 
 -- UTF-8 安全的字符字节数计算
-local function utf8_charbytes(s, i)
-    local c = string.byte(s, i)
-    if not c then return 0 end
-    if c > 240 then return 4
-    elseif c > 224 then return 3
-    elseif c > 192 then return 2
-    else return 1 end
-end
-
+-- 优化后的文本分段函数（新增：若结束符后紧接省略符（… 或 多个 .），则不分句）
 function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
-    -- 根據您的建議，將判斷邏輯內置
     local mode = Text_Language and "zh" or "en"
-    
+
     local chunks = {}
     if type(text) ~= "string" or text == "" then return chunks end
     word_limit_en = word_limit_en or 25
     char_limit_zh = char_limit_zh or 45
 
-    -- 1. 预处理：移除换行符和首尾空格
-    text = string.gsub(text, "[\r\n]", " ") -- 将换行符统一变为空格，以正确计算单词数
+    -- 预处理
+    text = string.gsub(text, "[\r\n]", " ")
     text = string.gsub(text, "^%s+", "")
     text = string.gsub(text, "%s+$", "")
-    text = string.gsub(text, "%s+", " ") -- 将多个连续空格合并为单个，使单词计数更准确
+    text = string.gsub(text, "%s+", " ")
 
-    local buffer = ""
-    local space_count = 0 -- 单词计数器 (英文模式)
-    local char_count = 0  -- 字符计数器 (中文模式)
-    
-    local i, len = 1, string.len(text)
-    while i <= len do
-        -- 正确处理 UTF-8 字符
-        local byte1 = string.byte(text, i)
-        local charLen = (byte1 > 240 and 4) or (byte1 > 224 and 3) or (byte1 > 192 and 2) or 1
-        local char = string.sub(text, i, i + charLen - 1)
-        
-        buffer = buffer .. char
-
-        -- 2. 检查是否为终结符或特殊符号
-        local should_split = false
-        local is_ender_char = false
-
-        -- 检查 "..." 和 "…"
-        if char == "." and string.sub(text, i, i + 2) == "..." then
-            -- 检测到 "..."，作为一个整体处理
-            buffer = buffer .. ".." -- 补全省略号
-            i = i + 2 -- 跳过后面两个点
-            charLen = 3
-            is_ender_char = true
-        elseif char == "…" or char == "—" then
-            -- 对于成对出现的符号，可以检查下一个是否也是同类
-            local next_char_start = i + charLen
-            if next_char_start <= len then
-                local next_char_byte1 = string.byte(text, next_char_start)
-                local next_charLen = (next_char_byte1 > 240 and 4) or (next_char_byte1 > 224 and 3) or (next_char_byte1 > 192 and 2) or 1
-                if string.sub(text, next_char_start, next_char_start + next_charLen - 1) == char then
-                    is_ender_char = true
-                end
-            end
-        elseif char == "。" or char == "！" or char == "？" or char == "!" or char == "?" or char == ";" or char == "；" then
-            is_ender_char = true
-        elseif char == "." then
-            -- 核心优化：处理 Mr.Z的情况
-            -- 只有当句点后是空格，或是字符串结尾时，才认为是句子结束
-            local next_char = string.sub(text, i + 1, i + 1)
-            if next_char == " " or next_char == "" then
-                is_ender_char = true
-            end
-        end
-
-        -- 3. 根据模式判断是否分段
-        if is_ender_char then
-            if mode == "en" and space_count >= 3 then -- 英文模式下，句子至少有一定单词量，避免超短句
-                should_split = true
-            elseif mode == "zh" and char_count >= 10 then -- 中文模式下，句子至少有一定字数
-                should_split = true
-            end
-        end
-        
-        -- 4. 检查是否达到长度上限，强制分段
-        if not should_split then
-            if mode == "en" and char == " " then
-                space_count = space_count + 1
-                if space_count >= word_limit_en then
-                    should_split = true
-                end
-            elseif mode == "zh" then
-                -- 在中文模式下，我们统计非符号字符的数量
-                if not string.find("，。,！!？?；;……— ", char) then
-                    char_count = char_count + 1
-                    if char_count >= char_limit_zh then
-                        should_split = true
-                    end
-                end
-            end
-        end
-
-        -- 5. 执行分段
-        if should_split then
-            -- Trim a leading space from the new buffer if the split happens after a space
-            local next_start = i + charLen
-            if next_start <= len and string.sub(text, next_start, next_start) == " " then
-                i = i + 1 -- 如果当前分段结尾是空格，下一个分段就跳过这个空格
-            end
-            table.insert(chunks, buffer)
-            buffer, space_count, char_count = "", 0, 0
-        end
-
-        i = i + charLen
+    -- UTF-8 字节长度判断（Lua5.0 可用）
+    local function utf8_len_at(s, pos)
+        local b = string.byte(s, pos)
+        if not b then return 1 end
+        if b > 240 then return 4 end
+        if b > 224 then return 3 end
+        if b > 192 then return 2 end
+        return 1
     end
 
-    -- 6. 添加最后剩余的 buffer
+    -- 结束符集合
+    local ender_lookup = {}
+    local function add_to_lookup(t, key) t[key] = true end
+    add_to_lookup(ender_lookup, ".")
+    add_to_lookup(ender_lookup, "。")
+    add_to_lookup(ender_lookup, "!")
+    add_to_lookup(ender_lookup, "！")
+    add_to_lookup(ender_lookup, "?")
+    add_to_lookup(ender_lookup, "？")
+    add_to_lookup(ender_lookup, ";")
+    add_to_lookup(ender_lookup, "；")
+    add_to_lookup(ender_lookup, "…")
+    add_to_lookup(ender_lookup, "—")
+
+    local function is_ender_char(ch)
+        return ender_lookup[ch] and true or false
+    end
+
+    -- 变量
+    local buffer = ""
+    local space_count = 0
+    local char_count = 0
+    local i = 1
+    local len = string.len(text)
+
+    while i <= len do
+        local charLen = utf8_len_at(text, i)
+        local ch = string.sub(text, i, i + charLen - 1)
+
+        -- 先把当前字符加入 buffer（后续可能再追加连续的标点串）
+        buffer = buffer .. ch
+
+        local should_split = false
+        local is_ender = false
+
+        -- 若当前为可能的结束符（包含单点 '.' 的情况），向后扫描连续的标点串
+        if is_ender_char(ch) or ch == "." then
+            local j = i + charLen
+            while j <= len do
+                local nlen = utf8_len_at(text, j)
+                local nch = string.sub(text, j, j + nlen - 1)
+                if is_ender_char(nch) or nch == "." then
+                    j = j + nlen
+                else
+                    break
+                end
+            end
+
+            -- 标点串（从 i 到 j-1）
+            local seq = ""
+            if j - 1 >= i then seq = string.sub(text, i, j - 1) end
+
+            -- 若标点串中包含省略符 '…'，或包含连续两个点 ("..")，则视为省略续写 —— 不分句
+            if (string.find(seq, "…", 1, true) ~= nil) or (string.find(seq, "..", 1, true) ~= nil) then
+                -- 我们已经把第一个字符加入 buffer，需把 seq 中除首个字符外的部分也追加
+                if j > i + charLen then
+                    buffer = buffer .. string.sub(text, i + charLen, j - 1)
+                end
+                -- 跳过整段标点串，不认为这里是句末，继续处理下一个位置
+                i = j
+                -- 不改变计数（标点不计入字/词计数）
+            else
+                -- 标点串不包含省略续写，视作正常候选句末
+                if j > i + charLen then
+                    buffer = buffer .. string.sub(text, i + charLen, j - 1)
+                end
+
+                -- 特殊处理：如果 seq 仅为单个 '.'，按照缩写规则（只有后面是空格或结尾才算句末）
+                if seq == "." then
+                    local next_pos = j
+                    local next_ch = ""
+                    if next_pos <= len then
+                        local nl2 = utf8_len_at(text, next_pos)
+                        next_ch = string.sub(text, next_pos, next_pos + nl2 - 1)
+                    end
+                    if next_ch == " " or next_ch == "" then
+                        is_ender = true
+                    else
+                        is_ender = false
+                    end
+                else
+                    -- 其它（多符号连写或非点号标点等）视为句末候选
+                    is_ender = true
+                end
+
+                -- 将读取位置移动到标点串之后
+                i = j
+            end
+        else
+            -- 非标点字符：更新计数并继续
+            if mode == "en" then
+                if ch == " " then
+                    space_count = space_count + 1
+                    if space_count >= word_limit_en then should_split = true end
+                end
+            else
+                -- 中文模式：不把标点计入字数，空格也忽略
+                if not is_ender_char(ch) and ch ~= " " then
+                    char_count = char_count + 1
+                    if char_count >= char_limit_zh then should_split = true end
+                end
+            end
+            -- 移动到下一个字符
+            i = i + charLen
+        end
+
+        -- 如果前面判定为句末候选，再根据句内长度阈值决定是否真正分句
+        if is_ender and not should_split then
+            if mode == "en" then
+                if space_count >= WordMinLimit then should_split = true end
+            else
+                if char_count >= WordMinLimit then should_split = true end
+            end
+        end
+
+        -- 如果还没决定分段，再检查（对于英文：在遇到空格时已经计数；对于中文已经计数）
+        -- （这里保持之前逻辑：若达到长度上限则强制分段）
+        if not should_split then
+            if mode == "en" then
+                -- 在英文模式只在空格处统计并触发（上面已有处理），这里不需额外动作
+            else
+                -- 中文模式：如果当前 i 指向的是下一个字符且它不是标点/空格，我们已经在上面计数过
+            end
+        end
+
+        -- 执行分段：插入 chunk 并重置计数、buffer
+        if should_split then
+            -- 跳过段首空格
+            if i <= len and string.sub(text, i, i) == " " then
+                i = i + 1
+            end
+            table.insert(chunks, buffer)
+            buffer = ""
+            space_count = 0
+            char_count = 0
+        end
+        -- loop 继续
+    end
+
+    -- 添加尾部残余
     if string.gsub(buffer, "%s+", "") ~= "" then
         table.insert(chunks, buffer)
     end
-    
+
     return chunks
 end
 

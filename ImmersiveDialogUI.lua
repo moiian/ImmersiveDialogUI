@@ -13,8 +13,8 @@ local IDUI_Defaults = {
     ItemGridRowSpacing = -2,
     FontSize = 19,
     TextLanguage = false,
-    xOffsetOffset = 4.5, -- 这个值会根据TextLanguage动态变化
-    FadeDuration = 0.1,
+    xOffsetOffset = 3, -- 这个参数改为了WordMinLimit，决定句子的最短长度
+    FadeDuration = 0.3,
     IfXPbarOn = 1,
     KEY_YES = "E", -- 新增：接受按键
     KEY_NO = "R",  -- 新增：拒绝/返回按键
@@ -26,9 +26,9 @@ local function GetDynamicDefault(name)
         -- 根据当前TextLanguage状态返回对应的默认值
         local currentLanguage = ImmersiveUIDB and ImmersiveUIDB.TextLanguage
         if currentLanguage then
-            return 3.1  -- 中文时的默认值
+            return 6  -- 中文时的默认值
         else
-            return 4.5  -- 英文时的默认值
+            return 3  -- 英文时的默认值
         end
     else
         return IDUI_Defaults[name]
@@ -70,10 +70,10 @@ local function SetVar(name, val)
     
     -- 当TextLanguage改变时，自动调整xOffsetOffset
     if name == "TextLanguage" then
-        local newXOffsetDefault = val and 3.1 or 4.5
+        local newXOffsetDefault = val and 6 or 3
         -- 只有当前xOffsetOffset是默认值时才自动调整
         local currentXOffset = ImmersiveUIDB.xOffsetOffset
-        local oldXOffsetDefault = val and 4.5 or 3.1  -- 之前的默认值
+        local oldXOffsetDefault = val and 3 or 6  -- 之前的默认值
         
         -- 如果当前值等于之前的默认值，则更新为新的默认值
         if currentXOffset == oldXOffsetDefault then
@@ -261,8 +261,8 @@ local function CreateConfigPanel()
         { name = "ItemGridColumnSpacing", title = "Reward Item Column Spacing", min = 0, max = 300, step = 1, def = IDUI_Defaults.ItemGridColumnSpacing },
         { name = "ItemGridRowSpacing", title = "Reward Item Row Spacing", min = -50, max = 50, step = 1, def = IDUI_Defaults.ItemGridRowSpacing },
         { name = "FontSize", title = "Font Size", min = 8, max = 40, step = 1, def = IDUI_Defaults.FontSize },
-        { name = "xOffsetOffset", title = "Typewriter Text XOffset", min = 0.0, max = 10.0, step = 0.1, def = IDUI_Defaults.xOffsetOffset },
-        { name = "FadeDuration", title = "Fade in Duration", min = 0.0, max = 1.0, step = 0.01, def = IDUI_Defaults.FadeDuration },
+        { name = "xOffsetOffset", title = "Length of Shortest Sentence", min = 2, max = 15, step = 1, def = IDUI_Defaults.xOffsetOffset },
+        { name = "FadeDuration", title = "Fade in Duration", min = 0.0, max = 2.0, step = 0.01, def = IDUI_Defaults.FadeDuration },
     }
 
     local total = table.getn(defs)
