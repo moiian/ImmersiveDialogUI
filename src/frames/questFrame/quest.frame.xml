@@ -708,7 +708,7 @@
                                             </Anchors>
                                         </FontString>
                                         <FontString name="DQuestDescription" inherits="DQuestFont"
-                                            justifyH="LEFT" nonspacewrap="true">
+                                            justifyH="CENTER" nonspacewrap="true">
                                             <Size>
                                                 <AbsDimension x="900" y="0" />
                                             </Size>
@@ -942,9 +942,6 @@
                     <OnShow>
                         DQuestFrameDetailPanel_OnShow();
                     </OnShow>
-                    <OnUpdate>
-                        DQuestFrameDetailPanel_OnUpdate(arg1);
-                    </OnUpdate>
                 </Scripts>
             </Frame>
             <Frame name="DQuestFrameGreetingPanel" inherits="DQuestFramePanelTemplate" hidden="true">
