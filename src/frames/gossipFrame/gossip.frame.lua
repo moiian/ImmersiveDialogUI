@@ -45,7 +45,10 @@ function ApplyDynamicLayout()
         AncillaryInitialYOffset = -10,
         AncillarySpacing = -10,
         FontSize = 19,
-		WordMinLimit = 3
+		WordMinLimit = 3,
+		IfCameraMode = 1,
+		IfButtonShow = 1,
+		IfXBOXButton = 0,
     }
     local db = ImmersiveUIDB or {}
 
@@ -63,7 +66,10 @@ function ApplyDynamicLayout()
         RightColumnWidthPct = (db.RightColumnWidthPct or 0.15) + 0.10,
         AncillaryInitialYOffset = (db.AncillaryInitialYOffset or -30) + 20,
         AncillarySpacing = (db.AncillarySpacing or -20) + 10,
-		WordMinLimit = db.xOffsetOffset or GOSSIP_DEFAULTS.xOffsetOffset
+		WordMinLimit = db.xOffsetOffset or GOSSIP_DEFAULTS.xOffsetOffset,
+		IfCameraMode = db.IfCameraMode or GOSSIP_DEFAULTS.IfCameraMode,
+		IfButtonShow = db.IfButtonShow or GOSSIP_DEFAULTS.IfButtonShow,
+		IfXBOXButton = db.IfXBOXButton or GOSSIP_DEFAULTS.IfXBOXButton,
 		
     };
 
@@ -130,8 +136,38 @@ function ApplyDynamicLayout()
         end
     end
 end
+--	添加相机模式
+local function IDUICamIn()	
+	if GOSSIP_DEFAULTS.IfCameraMode==1 then
+		--SaveView(5)
+		SetView(2)
+		--CameraZoomIn(0.5)
+	end
+end
 
+local function IDUICamOut()
+	if GOSSIP_DEFAULTS.IfCameraMode==1 then
+		SetView(5)
+	end
+end
 
+--===根据开关改变按键图标===--
+local function IDUISetTexture(button, path)
+	local ButtonIcon = getglobal(button)
+	if ButtonIcon then
+		ButtonIcon:SetTexture(path)
+	end
+end
+
+local function SetButtonTexture()
+	if LayoutConfig.IfButtonShow == 0 then
+		IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
+	elseif LayoutConfig.IfXBOXButton == 1 then
+		IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
+	elseif LayoutConfig.IfXBOXButton == 0 then
+		IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
+	end
+end
 -- =================================================================
 -- ========= 核心工具及文本显示函数 ===================================
 -- =================================================================
@@ -378,6 +414,7 @@ local function GossipShouldKeepFrame(name)
 		string.find(name, "^Gossip") or
         string.find(name, "^DMoneyFrame") or
         string.find(name, "^DUI") or
+		string.find(name, "pfChat") or
         name == "QuestFrame"
     )
 end
@@ -482,6 +519,7 @@ function DGossipFrame_OnEvent()
     if (event == "GOSSIP_SHOW") then
 		-- 【修改】每次显示时都应用最新的布局和设置
 		ApplyDynamicLayout();
+		IDUICamIn();
 
         if (not DGossipFrame:IsVisible()) then
 			HideAllFramesExceptDGossip();
@@ -499,6 +537,7 @@ function DGossipFrame_OnEvent()
         HideUIPanel(DGossipFrame);
         DGossipKeyFrame:EnableKeyboard(false)
 		DGossipFrame_CloseUI();
+		IDUICamOut();
     end
 end
 

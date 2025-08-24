@@ -399,6 +399,22 @@
                                 </Offset>
                             </Anchor>
                         </Anchors>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture name="$parentIcon" file="Interface\AddOns\ImmersiveDialogUI\src\assets\art\keys\keyboard\esc">
+                                    <Size>
+                                        <AbsDimension x="26" y="26" />
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+                                            <Offset>
+                                                <AbsDimension x="-30" y="0.7" />
+                                            </Offset>
+                                        </Anchor>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
                         <Scripts>
 							<OnEnter>
 								DQuestFrameGoodbyeButtonText:SetTextColor(1, 0.8, 0)

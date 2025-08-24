@@ -4,7 +4,7 @@
 ## Author: moiianxiv
 ## Version: 1.0
 ## SavedVariables: ImmersiveUIDB
-
+# https://github.com/moiian/ImmersiveDialogUI
 ImmersiveDialogUI.lua
 
 # Fonts used for the frames

@@ -29,7 +29,10 @@ local LayoutConfig = {
     ItemGridColumnSpacing = 50,
     ItemGridRowSpacing = -2,
 	FontSize = 19,
-	WordMinLimit = 3
+	WordMinLimit = 3,
+	IfCameraMode = 1,
+	IfButtonShow = 1,
+	IfXBOXButton = 0,
 };
 
 local function UpdateSettings()
@@ -48,7 +51,11 @@ local function UpdateSettings()
     LayoutConfig.ItemGridColumnSpacing = ImmersiveUIDB.ItemGridColumnSpacing or LayoutConfig.ItemGridColumnSpacing
     LayoutConfig.ItemGridRowSpacing = ImmersiveUIDB.ItemGridRowSpacing or LayoutConfig.ItemGridRowSpacing
     LayoutConfig.FontSize = ImmersiveUIDB.FontSize or LayoutConfig.FontSize
-	WordMinLimit = ImmersiveUIDB.xOffsetOffset or LayoutConfig.WordMinLimit
+	LayoutConfig.WordMinLimit = ImmersiveUIDB.xOffsetOffset or LayoutConfig.WordMinLimit
+	LayoutConfig.IfCameraMode = ImmersiveUIDB.IfCameraMode or LayoutConfig.IfCameraMode
+	LayoutConfig.IfButtonShow = ImmersiveUIDB.IfButtonShow or LayoutConfig.IfButtonShow
+	LayoutConfig.IfXBOXButton = ImmersiveUIDB.IfXBOXButton or LayoutConfig.IfXBOXButton
+	--DEFAULT_CHAT_FRAME:AddMessage("Quest IfCameraMode is " .. ImmersiveUIDB.IfCameraMode) 
 
     -- 更新独立的变量
     -- 检查是否为 nil，因为 false 也是一个有效值
@@ -79,7 +86,55 @@ local QUESTCOLORS = {
     Ivory = {1, 1, 1},
 	TitleBrown = {0.99,0.83,0.07}
 };
+local function IDUICamIn()	--	添加相机模式
+	if LayoutConfig.IfCameraMode==1 then
+		--SaveView(5)
+		SetView(2)
+		--CameraZoomIn(0.5)
+	end
+end
 
+local function IDUICamOut()
+	if LayoutConfig.IfCameraMode==1 then
+		SetView(5)
+	end
+end
+
+--===根据开关改变按键图标===--
+local function IDUISetTexture(button, path)
+	local ButtonIcon = getglobal(button)
+	if ButtonIcon then
+		ButtonIcon:SetTexture(path)
+	end
+end
+
+local function SetButtonTexture()
+	if LayoutConfig.IfButtonShow == 0 then
+		IDUISetTexture("DQuestFrameCancelButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
+		IDUISetTexture("DQuestFrameDeclineButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
+		IDUISetTexture("DQuestFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
+		IDUISetTexture("DQuestFrameGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
+		IDUISetTexture("DQuestFrameCompleteQuestButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\space.tga")
+		IDUISetTexture("DQuestFrameAcceptButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\space.tga")
+		IDUISetTexture("DQuestFrameCompleteButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\space.tga")
+	elseif LayoutConfig.IfXBOXButton == 1 then
+		IDUISetTexture("DQuestFrameCancelButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
+		IDUISetTexture("DQuestFrameDeclineButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
+		IDUISetTexture("DQuestFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
+		IDUISetTexture("DQuestFrameGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
+		IDUISetTexture("DQuestFrameCompleteQuestButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\space.tga")
+		IDUISetTexture("DQuestFrameAcceptButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\space.tga")
+		IDUISetTexture("DQuestFrameCompleteButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\space.tga")
+	elseif LayoutConfig.IfXBOXButton == 0 then
+		IDUISetTexture("DQuestFrameCancelButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
+		IDUISetTexture("DQuestFrameDeclineButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
+		IDUISetTexture("DQuestFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
+		IDUISetTexture("DQuestFrameGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
+		IDUISetTexture("DQuestFrameCompleteQuestButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\space.tga")
+		IDUISetTexture("DQuestFrameAcceptButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\space.tga")
+		IDUISetTexture("DQuestFrameCompleteButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\space.tga")
+	end
+end
 --隐藏与记录函数
 local HiddenFrames = {}
 local function ShouldKeepFrame(name)
@@ -88,6 +143,7 @@ local function ShouldKeepFrame(name)
         string.find(name, "^DGossip") or
         string.find(name, "^DMoneyFrame") or
         string.find(name, "^DUI") or
+		string.find(name, "pfChat") or
         name == "QuestFrame"
     )
 end
@@ -267,7 +323,7 @@ function DQuestFrame_OnLoad()
 	SetFontColor(DQuestFrameGoodbyeButtonText, "LightBrown");
 	SetFontColor(DQuestFrameCompleteButtonText, "LightBrown");
 	SetFontColor(DQuestRewardRewardTitleText, "TitleBrown");
-	
+	SaveView(5);
 	KillPortrait();
 end
 
@@ -752,6 +808,8 @@ end
 
 function DQuestFrame_OnShow()
 	UpdateSettings()
+	IDUICamIn()
+	SetButtonTexture()
     --if not layoutApplied["MainFrame"] then
         local sw, sh = GetScreenWidth(), GetScreenHeight()
         DQuestFrame:SetWidth(sw)
@@ -792,6 +850,7 @@ function DQuestFrame_OnShow()
 end
 
 function DQuestFrame_OnHide()
+	IDUICamOut();
     DQuestFrameGreetingPanel:Hide();
     DQuestFrameDetailPanel:Hide();
     DQuestFrameRewardPanel:Hide();
@@ -1065,9 +1124,9 @@ function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
         -- 如果前面判定为句末候选，再根据句内长度阈值决定是否真正分句
         if is_ender and not should_split then
             if mode == "en" then
-                if space_count >= WordMinLimit then should_split = true end
+                if space_count >= LayoutConfig.WordMinLimit then should_split = true end
             else
-                if char_count >= WordMinLimit then should_split = true end
+                if char_count >= LayoutConfig.WordMinLimit then should_split = true end
             end
         end
 
