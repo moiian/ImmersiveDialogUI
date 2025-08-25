@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-global
 NUMGOSSIPBUTTONS = 32;
 local Text_Language = false
-local Text_Language_Test = "en"
+--local Text_Language_Test = "en"
 -- 【已移除】不再在文件顶部定义固定的布局变量
 -- local GOSSIP_TEXT_FADE_DURATION = 0.1;
 -- local LayoutConfig = { ... };
@@ -184,13 +184,13 @@ end
 
 -- UTF-8 安全的字符字节数计算
 -- 优化后的文本分段函数（新增：若结束符后紧接省略符（… 或 多个 .），则不分句）
-function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
+function SplitGossipTextToChunks(text, word_limit_en, char_limit_zh)
     local mode = Text_Language and "zh" or "en"
-
+	DEFAULT_CHAT_FRAME:AddMessage("mode is " .. mode) 
     local chunks = {}
     if type(text) ~= "string" or text == "" then return chunks end
     word_limit_en = word_limit_en or 45	--最大空格数
-    char_limit_zh = char_limit_zh or 45		--最大汉字数
+    char_limit_zh = char_limit_zh or 75		--最大汉字数
 
     -- 预处理
     text = string.gsub(text, "[\r\n]", " ")
@@ -315,7 +315,7 @@ function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
         end
 
         -- 如果前面判定为句末候选，再根据句内长度阈值决定是否真正分句
-        if is_ender and not should_split then
+        if is_ender and not should_split then	
             if mode == "en" then
                 if space_count >= LayoutConfig.WordMinLimit then should_split = true end
             else
@@ -351,7 +351,6 @@ function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
     if string.gsub(buffer, "%s+", "") ~= "" then
         table.insert(chunks, buffer)
     end
-
     return chunks
 end
 
@@ -390,7 +389,7 @@ end
 
 function StartGossipPagination(fullText)
     ResetGossipPaginationState();
-    DGossipTextChunks = SplitQuestTextToChunks(fullText or "");
+    DGossipTextChunks = SplitGossipTextToChunks(fullText or "");
     if table.getn(DGossipTextChunks) == 0 then
         if fullText and fullText ~= "" then
             DGossipTextChunks = { fullText };
