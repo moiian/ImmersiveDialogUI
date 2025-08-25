@@ -1,7 +1,6 @@
 ---@diagnostic disable: undefined-global
 NUMGOSSIPBUTTONS = 32;
-local Text_Language = false
-local Text_Language_Test = "en"
+
 -- 【已移除】不再在文件顶部定义固定的布局变量
 -- local GOSSIP_TEXT_FADE_DURATION = 0.1;
 -- local LayoutConfig = { ... };
@@ -29,9 +28,14 @@ local DGossipTextFullyDisplayed = false;
 -- ========= 核心布局函数（已重构） =================================
 -- =================================================================
 -- 此函数现在会在每次Gossip窗口显示时被调用，以应用最新的设置
-local LayoutConfig = {
+function ApplyDynamicLayout()
+    --[[
+        【修改】配置加载逻辑已移入此函数内部。
+        这确保了每次调用时都会从全局ImmersiveUIDB中读取最新的值。
+    ]]
+    local GOSSIP_DEFAULTS = {
         FadeDuration = 0.1,
-        --TextLanguage = false,
+        TextLanguage = false,
         TextBottomOffset = 35,
         TextWidthPct = 0.80,
         TitleBottomOffset = 100,
@@ -45,67 +49,37 @@ local LayoutConfig = {
 		IfCameraMode = 1,
 		IfButtonShow = 1,
 		IfXBOXButton = 0,
- }
-
-function ApplyDynamicLayout()
-    -- ImmersiveUIDB 是由 ImmersiveDialogUI.lua 创建的全局设置表
-    if not ImmersiveUIDB then return end
-	
+    }
     local db = ImmersiveUIDB or {}
 
     -- 定义本次布局所需的变量
-    local GOSSIP_TEXT_FADE_DURATION = db.FadeDuration or LayoutConfig.FadeDuration
-   -- _G. -- 使用_G使其全局化，如果其他地方需要
+    local GOSSIP_TEXT_FADE_DURATION = db.FadeDuration or GOSSIP_DEFAULTS.FadeDuration
+    _G.Text_Language = db.TextLanguage or GOSSIP_DEFAULTS.TextLanguage -- 使用_G使其全局化，如果其他地方需要
 
-    LayoutConfig = {
-        TextBottomOffset = db.TextBottomOffset or LayoutConfig.TextBottomOffset,
-        TextWidthPct = db.TextWidthPct or LayoutConfig.TextWidthPct,
-        TitleBottomOffset = db.TitleBottomOffset or LayoutConfig.TitleBottomOffset,
-        RightColumnXOffset = db.RightColumnXOffset or LayoutConfig.RightColumnXOffset,
-        RightColumnYOffset = db.RightColumnYOffset or LayoutConfig.RightColumnYOffset,
-        FontSize = db.FontSize or LayoutConfig.FontSize,
+    local LayoutConfig = {
+        TextBottomOffset = db.TextBottomOffset or GOSSIP_DEFAULTS.TextBottomOffset,
+        TextWidthPct = db.TextWidthPct or GOSSIP_DEFAULTS.TextWidthPct,
+        TitleBottomOffset = db.TitleBottomOffset or GOSSIP_DEFAULTS.TitleBottomOffset,
+        RightColumnXOffset = db.RightColumnXOffset or GOSSIP_DEFAULTS.RightColumnXOffset,
+        RightColumnYOffset = db.RightColumnYOffset or GOSSIP_DEFAULTS.RightColumnYOffset,
+        FontSize = db.FontSize or GOSSIP_DEFAULTS.FontSize,
         RightColumnWidthPct = (db.RightColumnWidthPct or 0.15) + 0.10,
         AncillaryInitialYOffset = (db.AncillaryInitialYOffset or -30) + 20,
         AncillarySpacing = (db.AncillarySpacing or -20) + 10,
-		WordMinLimit = db.xOffsetOffset or LayoutConfig.xOffsetOffset,
-		IfCameraMode = db.IfCameraMode or LayoutConfig.IfCameraMode,
-		IfButtonShow = db.IfButtonShow or LayoutConfig.IfButtonShow,
-		IfXBOXButton = db.IfXBOXButton or LayoutConfig.IfXBOXButton,
-		--Text_Language = db.TextLanguage or LayoutConfig.TextLanguage,
+		WordMinLimit = db.xOffsetOffset or GOSSIP_DEFAULTS.xOffsetOffset,
+		IfCameraMode = db.IfCameraMode or GOSSIP_DEFAULTS.IfCameraMode,
+		IfButtonShow = db.IfButtonShow or GOSSIP_DEFAULTS.IfButtonShow,
+		IfXBOXButton = db.IfXBOXButton or GOSSIP_DEFAULTS.IfXBOXButton,
 		
     };
-    if db.TextLanguage ~= nil then
-        Text_Language = db.TextLanguage
-    end
-	--测试信息
-	--if Text_Language==true then Text_Language_Test = "zh" else Text_Language_Test = "en" end
-	--DEFAULT_CHAT_FRAME:AddMessage("LayoutConfig.WordMinLimit is " .. LayoutConfig.WordMinLimit) 
-	--DEFAULT_CHAT_FRAME:AddMessage("LayoutConfig.WordMinLimit is " .. LayoutConfig.WordMinLimit) 
-	--DEFAULT_CHAT_FRAME:AddMessage("Text_Language is " .. Text_Language_Test) 
+
     -- 字体配置也需要在这里动态生成，因为它依赖于FontSize
     local FontConfig = {
         ButtonFont = "Fonts\\FRIZQT__.TTF",
         ButtonFontSize = LayoutConfig.FontSize - 3,
         ButtonFontFlags = "OUTLINE",
     };
-	-- ===根据开关改变按键图标===
-	local function IDUISetTexture(button, path)
-		local ButtonIcon = getglobal(button)
-		if ButtonIcon then
-			ButtonIcon:SetTexture(path)
-		end
-	end
-	local function SetButtonTexture()
-		if LayoutConfig.IfButtonShow == 0 then
-			IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
-		elseif LayoutConfig.IfXBOXButton == 1 then
-			IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
-		elseif LayoutConfig.IfXBOXButton == 0 then
-			IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
-		end
-	end
-	
-	SetButtonTexture();
+
     -- =================== 布局应用代码（来自原函数） ===================
     local screenWidth, screenHeight = GetScreenWidth(), GetScreenHeight();
 
@@ -164,7 +138,7 @@ function ApplyDynamicLayout()
 end
 --	添加相机模式
 local function IDUICamIn()	
-	if LayoutConfig.IfCameraMode==1 then
+	if GOSSIP_DEFAULTS.IfCameraMode==1 then
 		--SaveView(5)
 		SetView(2)
 		--CameraZoomIn(0.5)
@@ -172,12 +146,28 @@ local function IDUICamIn()
 end
 
 local function IDUICamOut()
-	if LayoutConfig.IfCameraMode==1 then
+	if GOSSIP_DEFAULTS.IfCameraMode==1 then
 		SetView(5)
 	end
 end
 
+--===根据开关改变按键图标===--
+local function IDUISetTexture(button, path)
+	local ButtonIcon = getglobal(button)
+	if ButtonIcon then
+		ButtonIcon:SetTexture(path)
+	end
+end
 
+local function SetButtonTexture()
+	if LayoutConfig.IfButtonShow == 0 then
+		IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\empty\\esc.tga")
+	elseif LayoutConfig.IfXBOXButton == 1 then
+		IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\xbox\\esc.tga")
+	elseif LayoutConfig.IfXBOXButton == 0 then
+		IDUISetTexture("DGossipFrameGreetingGoodbyeButtonIcon", "Interface\\AddOns\\ImmersiveDialogUI\\src\\assets\\art\\keys\\keyboard\\esc.tga")
+	end
+end
 -- =================================================================
 -- ========= 核心工具及文本显示函数 ===================================
 -- =================================================================
@@ -189,8 +179,8 @@ function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
 
     local chunks = {}
     if type(text) ~= "string" or text == "" then return chunks end
-    word_limit_en = word_limit_en or 45	--最大空格数
-    char_limit_zh = char_limit_zh or 45		--最大汉字数
+    word_limit_en = word_limit_en or 25
+    char_limit_zh = char_limit_zh or 45
 
     -- 预处理
     text = string.gsub(text, "[\r\n]", " ")
@@ -317,9 +307,9 @@ function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
         -- 如果前面判定为句末候选，再根据句内长度阈值决定是否真正分句
         if is_ender and not should_split then
             if mode == "en" then
-                if space_count >= LayoutConfig.WordMinLimit then should_split = true end
+                if space_count >= WordMinLimit then should_split = true end
             else
-                if char_count >= LayoutConfig.WordMinLimit then should_split = true end
+                if char_count >= WordMinLimit then should_split = true end
             end
         end
 

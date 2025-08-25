@@ -1,0 +1,22 @@
+这是魔兽世界（1.12）香草端的插件参数配置面板。
+用/IDUI可以打开一个配置面板，里面包含多个滑条、两个开关、四个按键。这些我称之为主面板。
+现在我想给该面板添加一个副面板，大致步骤为，在面板左方的外边的偏上方，添加2个类似标签的按钮。
+按钮1点击之后，面板切换为主面板。按钮标题可以为"HUD"
+按钮2点击之后，面板切换为副面板。按钮标题可以为"Misc"
+在副面板（即Misc面板），添加如下元素：
+一个大标题，写着"Camera"
+一个开关，标题为"If Switch Camera"，该开关的值用来返回给变量IDUI_Defaults.IfCameraMode，勾选时为1，取消时为0；
+一个按钮，标题为"Set Your Dialog Camera"，按钮中的标签为"Set Camera"，按钮下方再添加一个说明标签，"Adjust your camera to an appropriate distance and angle, then click this button. This will save the camera view."。点击该按钮后，运行一行代码：SaveView(2)
+
+一个大标题，写着"Button Style"
+一个开关，标题为"If Show Button Icon",该开关的值用来返回给变量IDUI_Defaults.IfButtonShow，勾选时为1，取消时为0；
+一个开关，标题为"If Show XBOX Icon",该开关的值用来返回给变量IDUI_Defaults.IfXBOXButton，勾选时为1，取消时为0；
+
+副面板的布局应参照主面板，整体宽度高度占整个框架的百分之多少，各个开关和按钮的宽高也要和主面板的一致。
+要分为两列显示，左列显示"Camera"的内容，右列显示"Icon"的内容。
+因为副面板内容不多，占不满，所以依然从上下排列即可。多余的空间我未来可能用于其他。
+
+注意，这是魔兽世界（1.12）香草端的插件的LUA代码，【必须严格遵循lua5.0规则】，例如不能用#DQuestTextChunks 这种表达，而是使用table.getn。
+给我完整的代码。
+
+报错：Interface\FrameXML\UIPanelTemplates.lua:18: 'for' limit must be a number

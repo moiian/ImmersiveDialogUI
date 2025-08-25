@@ -1,0 +1,53 @@
+"Interface\AddOns\ImmersiveDialogUI\src\assets\art\keys\esc"
+DQuestFrameCancelButton
+DQuestFrameDeclineButton
+DQuestFrameGreetingGoodbyeButton
+	DGossipFrameGreetingGoodbyeButton
+
+"Interface\AddOns\ImmersiveDialogUI\src\assets\art\keys\space"
+DQuestFrameCompleteQuestButton
+DQuestFrameAcceptButton
+DQuestFrameCompleteButton
+
+
+<Button name="DQuestFrameCancelButton" inherits="DUIPanelButtonTemplate"
+	text="CANCEL">
+	<Size>
+		<AbsDimension x="110" y="40" />
+	</Size>
+	<Anchors>
+		<Anchor point="TOPRIGHT" relativeTo="DQuestFrame"
+			relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="0" y="-60" />
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Layers>
+		<Layer level="ARTWORK">
+			<Texture name="$parentIcon" file="Interface\AddOns\ImmersiveDialogUI\src\assets\art\keys\esc">
+				<Size>
+					<AbsDimension x="26" y="26" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="-30" y="0.7" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<Scripts>
+		<OnEnter>
+			DQuestFrameCancelButtonText:SetTextColor(1, 0.8, 0)
+		</OnEnter>
+		<OnLeave>
+			DQuestFrameCancelButtonText:SetTextColor(1, 1, 1)
+		</OnLeave>
+		<OnClick>
+			DQuestRewardCancelButton_OnClick();
+		</OnClick>
+	</Scripts>
+</Button>
