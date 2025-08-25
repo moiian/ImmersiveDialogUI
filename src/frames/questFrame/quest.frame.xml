@@ -831,49 +831,26 @@
                                             <Button name="DQuestDetailItem1"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                        <Anchor point="CENTER"
-                                                            relativeTo="DQuestFrameNpcNameText"
-                                                            relativePoint="CENTER">
-                                                            <Offset>
-                                                                <AbsDimension x="0" y="0" />
-                                                            </Offset>
-                                                        </Anchor>
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem2"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                    <Anchor point="TOPLEFT" />
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem3"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                        <Anchor point="CENTER"
-                                                            relativeTo="DQuestFrameNpcNameText"
-                                                            relativePoint="CENTER">
-                                                            <Offset>
-                                                                <AbsDimension x="0" y="0" />
-                                                            </Offset>
-                                                        </Anchor>
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem4"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                    <Anchor point="TOPLEFT" />
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem5"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                        <Anchor point="CENTER"
-                                                            relativeTo="DQuestFrameNpcNameText"
-                                                            relativePoint="CENTER">
-                                                            <Offset>
-                                                                <AbsDimension x="0" y="0" />
-                                                            </Offset>
-                                                        </Anchor>
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem6"
@@ -885,37 +862,21 @@
                                             <Button name="DQuestDetailItem7"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                        <Anchor point="CENTER"
-                                                            relativeTo="DQuestFrameNpcNameText"
-                                                            relativePoint="CENTER">
-                                                            <Offset>
-                                                                <AbsDimension x="0" y="0" />
-                                                            </Offset>
-                                                        </Anchor>
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem8"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                    <Anchor point="TOPLEFT" />
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem9"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                        <Anchor point="CENTER"
-                                                            relativeTo="DQuestFrameNpcNameText"
-                                                            relativePoint="CENTER">
-                                                            <Offset>
-                                                                <AbsDimension x="0" y="0" />
-                                                            </Offset>
-                                                        </Anchor>
                                                 </Anchors>
                                             </Button>
                                             <Button name="DQuestDetailItem10"
                                                 inherits="DQuestItemTemplate">
                                                 <Anchors>
-                                                    <Anchor point="TOPLEFT" />
                                                 </Anchors>
                                             </Button>
                                             <Frame name="DQuestDetailMoneyFrame"

@@ -387,7 +387,7 @@ function DQuestFrameRewardPanel_OnShow()
         DQuestRewardScrollFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset - 20)
         DQuestRewardText:SetWidth(textWidth)
         DQuestRewardText:ClearAllPoints()
-        DQuestRewardText:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset)
+        DQuestRewardText:SetPoint("CENTER", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset+10)
 
         DQuestFrameCancelButton:ClearAllPoints()
         DQuestFrameCancelButton:SetPoint("CENTER", UIParent, "RIGHT", LayoutConfig.RightColumnXOffset, LayoutConfig.RightColumnYOffset)
@@ -479,7 +479,7 @@ function DQuestFrameProgressPanel_OnShow()
         DQuestProgressScrollFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset - 20)
         DQuestProgressText:SetWidth(textWidth)
         DQuestProgressText:ClearAllPoints()
-        DQuestProgressText:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset)
+        DQuestProgressText:SetPoint("CENTER", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset+10)
 
         DQuestFrameGoodbyeButton:ClearAllPoints()
         DQuestFrameGoodbyeButton:SetPoint("CENTER", UIParent, "RIGHT", LayoutConfig.RightColumnXOffset, LayoutConfig.RightColumnYOffset)
@@ -591,7 +591,7 @@ function DQuestFrameGreetingPanel_OnShow()
         DQuestGreetingScrollFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset - 20)
         DGreetingText:SetWidth(textWidth)
         DGreetingText:ClearAllPoints()
-        DGreetingText:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset)
+        DGreetingText:SetPoint("CENTER", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset+10)
         
         DQuestFrameGreetingGoodbyeButton:ClearAllPoints()
         DQuestFrameGreetingGoodbyeButton:SetPoint("CENTER", UIParent, "RIGHT", LayoutConfig.RightColumnXOffset, LayoutConfig.RightColumnYOffset)
@@ -924,12 +924,16 @@ function DQuestFrameItems_Update(questState, initialAnchor)
             if (isUsable) then SetItemButtonTextureVertexColor(item, 1.0, 1.0, 1.0); else SetItemButtonTextureVertexColor(item, 0.9, 0, 0); end
 
             item:ClearAllPoints()
-            if (mod(i, 2) == 1) then
-                item:SetPoint("TOPLEFT", itemAnchor, "BOTTOMLEFT", 0, LayoutConfig.ItemGridRowSpacing);
-                if i > 1 then itemAnchor = getglobal(questItemName .. (rewardsCount + i - 2)) end
-            else
-                item:SetPoint("TOPLEFT", getglobal(questItemName .. (rewardsCount + i - 1)), "TOPRIGHT", LayoutConfig.ItemGridColumnSpacing, 0);
-            end
+		if (mod(i, 2) == 1) then
+			-- i=1,3,5... 先更新 itemAnchor，再锚点
+			if i > 1 then
+				itemAnchor = getglobal(questItemName .. (rewardsCount + i - 2))
+			end
+			item:SetPoint("TOPLEFT", itemAnchor, "BOTTOMLEFT", 0, LayoutConfig.ItemGridRowSpacing);
+		else
+			-- i=2,4,6... 贴在左边物品的右边
+			item:SetPoint("TOPLEFT", getglobal(questItemName .. (rewardsCount + i - 1)), "TOPRIGHT", LayoutConfig.ItemGridColumnSpacing, 0);
+		end
             item:Show();
         end
         lastAnchor = getglobal(questItemName .. (rewardsCount + numQuestChoices - mod(numQuestChoices-1, 2))) 
@@ -938,33 +942,41 @@ function DQuestFrameItems_Update(questState, initialAnchor)
         getglobal(questState .. "ItemChooseText"):Hide();
     end
 
-    if (numQuestRewards > 0) then
-        local itemReceiveText = getglobal(questState .. "ItemReceiveText");
-        lastAnchor = PositionBelow(itemReceiveText, lastAnchor, 0, LayoutConfig.AncillarySpacing)
-        SetFontColor(itemReceiveText, "DarkBrown");
+	if (numQuestRewards > 0) then
+		local itemReceiveText = getglobal(questState .. "ItemReceiveText");
+		lastAnchor = PositionBelow(itemReceiveText, lastAnchor, 0, LayoutConfig.AncillarySpacing)
+		SetFontColor(itemReceiveText, "DarkBrown");
 
-        local itemAnchor = lastAnchor
-        for i = 1, numQuestRewards, 1 do
-            local item = getglobal(questItemName .. (rewardsCount + i));
-            local name, texture, numItems, quality, isUsable = GetQuestItemInfo("reward", i);
-            item:SetID(i); item.type = "reward"; item.rewardType = "item";
-            getglobal(item:GetName() .. "Name"):SetText(name);
-            SetItemButtonCount(item, numItems or 1); SetItemButtonTexture(item, texture);
-           
-            item:ClearAllPoints()
-            if (mod(i, 2) == 1) then
-                item:SetPoint("TOPLEFT", itemAnchor, "BOTTOMLEFT", 0, LayoutConfig.ItemGridRowSpacing);
-                if i > 1 then itemAnchor = getglobal(questItemName .. (rewardsCount + i - 2)) end
-            else
-                item:SetPoint("TOPLEFT", getglobal(questItemName .. (rewardsCount + i - 1)), "TOPRIGHT", LayoutConfig.ItemGridColumnSpacing, 0);
-            end
-            item:Show();
-        end
-        lastAnchor = getglobal(questItemName .. (rewardsCount + numQuestRewards - mod(numQuestRewards-1, 2)))
-        rewardsCount = rewardsCount + numQuestRewards
-    else
-        getglobal(questState .. "ItemReceiveText"):Hide();
-    end
+		local itemAnchor = lastAnchor
+		for i = 1, numQuestRewards, 1 do
+			local item = getglobal(questItemName .. (rewardsCount + i));
+			local name, texture, numItems, quality, isUsable = GetQuestItemInfo("reward", i);
+			item:SetID(i); item.type = "reward"; item.rewardType = "item";
+			getglobal(item:GetName() .. "Name"):SetText(name);
+			SetItemButtonCount(item, numItems or 1); 
+			SetItemButtonTexture(item, texture);
+		   
+			item:ClearAllPoints()
+			if (mod(i, 2) == 1) then
+				-- 奇数号 → 新的一行（先更新锚点，再放置）
+				if i > 1 then
+					itemAnchor = getglobal(questItemName .. (rewardsCount + i - 2));
+				end
+				item:SetPoint("TOPLEFT", itemAnchor, "BOTTOMLEFT", 0, LayoutConfig.ItemGridRowSpacing);
+			else
+				-- 偶数号 → 紧贴前一个
+				item:SetPoint("TOPLEFT", getglobal(questItemName .. (rewardsCount + i - 1)), "TOPRIGHT", LayoutConfig.ItemGridColumnSpacing, 0);
+			end
+			item:Show();
+		end
+
+		-- 修正最后的 lastAnchor
+		lastAnchor = getglobal(questItemName .. (rewardsCount + numQuestRewards - mod(numQuestRewards-1, 2)))
+		rewardsCount = rewardsCount + numQuestRewards
+	else
+		getglobal(questState .. "ItemReceiveText"):Hide();
+	end
+
     
     for i = rewardsCount + 1, MAX_NUM_ITEMS, 1 do getglobal(questItemName .. i):Hide(); end
 
@@ -997,7 +1009,7 @@ function SplitQuestTextToChunks(text, word_limit_en, char_limit_zh)
     local chunks = {}
     if type(text) ~= "string" or text == "" then return chunks end
     word_limit_en = word_limit_en or 45	--最大空格数
-    char_limit_zh = char_limit_zh or 45		--最大汉字数
+    char_limit_zh = char_limit_zh or 75		--最大汉字数
 
     -- 预处理
     text = string.gsub(text, "[\r\n]", " ")
@@ -1181,7 +1193,7 @@ function DQuestFrameDetailPanel_OnShow()
         
         -- Set static centered position for DQuestDescription
         DQuestDescription:ClearAllPoints()
-        DQuestDescription:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset)
+        DQuestDescription:SetPoint("CENTER", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset+10)
 
         DQuestFrameDeclineButton:ClearAllPoints()
         DQuestFrameDeclineButton:SetPoint("CENTER", UIParent, "RIGHT", LayoutConfig.RightColumnXOffset, LayoutConfig.RightColumnYOffset)

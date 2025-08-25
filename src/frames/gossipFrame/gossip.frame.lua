@@ -120,7 +120,7 @@ function ApplyDynamicLayout()
     -- 步骤 2: 布局文本和标题
     DGossipGreetingText:ClearAllPoints();
     DGossipGreetingText:SetWidth(screenWidth * LayoutConfig.TextWidthPct);
-    DGossipGreetingText:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset);
+    DGossipGreetingText:SetPoint("CENTER", UIParent, "BOTTOM", 0, LayoutConfig.TextBottomOffset+10);
     DGossipGreetingText:SetJustifyH("CENTER");
 	SetFontColor(DGossipGreetingText, "LightBrown", LayoutConfig.FontSize); -- 确保字体大小实时更新
 
